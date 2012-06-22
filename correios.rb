@@ -4,6 +4,7 @@ require 'optparse'
 require 'ostruct'
 require 'nokogiri'
 require 'open-uri'
+require 'colorize'
 
 class OptionsParser
   def self.parse(args)
@@ -27,11 +28,13 @@ options = OptionsParser.parse(ARGV)
 
 File.open(options.file).each_line do |line|
   store, product, track_code = line.split ';'
-  puts "Getting tracking info for #{product}"
-  puts "  Store: #{store}"
+  url = "http://websro.correios.com.br/sro_bin/txect01$.QueryList?P_LINGUA=001&P_COD_UNI=#{track_code}"
 
-  correios_url = 'http://websro.correios.com.br/sro_bin/txect01$.QueryList?P_LINGUA=001&P_TIPO=001&P_COD_UNI='
-  doc = Nokogiri::HTML(open(correios_url + track_code))
+  puts "Getting tracking info for #{product}".blue
+  puts "  Store: #{store}"
+  puts "    URL: #{url}"
+
+  doc = Nokogiri::HTML(open(url))
 
   track_info = []
   doc.xpath('//tr[2]/td').each do |info|
@@ -39,12 +42,14 @@ File.open(options.file).each_line do |line|
   end
 
   if (track_info.size > 0)
-    puts " Status: #{track_info[2]}#{track_info[2] =~ /ntrega/ ? ' <<<<<<<<<<<<<<<<<<<' : ''}"
+    status_color = track_info[2] =~ /ntrega/ ? :green : :uncolorize
+    puts " Status: #{track_info[2]}".colorize(status_color)
     puts "   Date: #{track_info[0]}"
     puts "  Where: #{track_info[1]}"
   else
-    puts '  [No tracking information found]'
+    puts '  [No tracking information found]'.red
   end
+
 
   puts ""
 end

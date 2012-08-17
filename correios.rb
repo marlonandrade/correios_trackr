@@ -37,8 +37,10 @@ File.open(options.file).each_line do |line|
   doc = Nokogiri::HTML(open(url))
 
   track_info = []
+  rowspan = nil
   doc.xpath('//tr[2]/td').each do |info|
     track_info << info.content
+    rowspan = info.attributes.select { |attr| attr == 'rowspan' }
   end
 
   if (track_info.size > 0)
@@ -46,6 +48,9 @@ File.open(options.file).each_line do |line|
     puts " Status: #{track_info[2]}".colorize(status_color)
     puts "   Date: #{track_info[0]}"
     puts "  Where: #{track_info[1]}"
+    if rowspan
+      puts "         #{doc.xpath('//tr[3]/td').map { |info| info.content }.join}"
+    end
   else
     puts '  [No tracking information found]'.red
   end

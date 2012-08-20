@@ -40,15 +40,16 @@ File.open(options.file).each_line do |line|
   rowspan = nil
   doc.xpath('//tr[2]/td').each do |info|
     track_info << info.content
-    rowspan = info.attributes.select { |attr| attr == 'rowspan' }
   end
+
+  rowspan = doc.xpath('//tr[2]/td[1][@rowspan = 2]')
 
   if (track_info.size > 0)
     status_color = track_info[2] =~ /ntrega/ ? :green : :uncolorize
     puts " Status: #{track_info[2]}".colorize(status_color)
     puts "   Date: #{track_info[0]}"
     puts "  Where: #{track_info[1]}"
-    if rowspan
+    unless rowspan.empty?
       puts "         #{doc.xpath('//tr[3]/td').map { |info| info.content }.join}"
     end
   else

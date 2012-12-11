@@ -30,6 +30,7 @@ File.open(options.file).each_line do |line|
   store, product, track_code = line.split ';'
   url = "http://websro.correios.com.br/sro_bin/txect01$.QueryList?P_LINGUA=001&P_COD_UNI=#{track_code}"
 
+  puts ''
   puts "Getting tracking info for #{product}".blue
   puts "  Store: #{store}"
   puts "    URL: #{url}"
